@@ -1,148 +1,75 @@
-function enviarParaWhatsApp() {
-  let mensagem = "🚀 *Novo Pedido COOPEX ENTREGAS*\n\n";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COOPEX ENTREGAS - Pedido</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>COOPEX ENTREGAS</h1>
+    <form id="pedidoForm" onsubmit="return false;">
+      <label>Nome do solicitante:</label>
+      <input type="text" id="nomeSolicitante" />
 
-  // Dados do solicitante
-  const nomeSolicitante = document.getElementById("nomeSolicitante").value.trim();
-  const telSolicitante = document.getElementById("telefoneSolicitante").value.trim();
-  if (nomeSolicitante || telSolicitante) {
-    mensagem += "🙋 *Solicitante:*\n";
-    if (nomeSolicitante) mensagem += `👤 ${nomeSolicitante}\n`;
-    if (telSolicitante) mensagem += `📞 ${telSolicitante}\n`;
-    mensagem += "\n";
-  }
+      <label>Telefone do solicitante:</label>
+      <input type="tel" id="telefoneSolicitante" />
 
-  // Coletas
-  for (let i = 1; i <= totalColetas; i++) {
-    let bloco = "";
-    const cep = document.getElementById(`cepColeta${i}`).value.trim();
-    const rua = document.getElementById(`ruaColeta${i}`).value.trim();
-    const numero = document.getElementById(`numeroColeta${i}`).value.trim();
-    const bairro = document.getElementById(`bairroColeta${i}`).value.trim();
-    const cidade = document.getElementById(`cidadeColeta${i}`).value.trim();
-    const complemento = document.getElementById(`complementoColeta${i}`).value.trim();
-    const ref = document.getElementById(`referenciaColeta${i}`).value.trim();
+      <h3>Endereço(s) de Coleta</h3>
+      <div id="coleta-container"></div>
+      <button type="button" onclick="adicionarColeta()">+ Coleta</button>
 
-    if (cep || rua || numero || bairro || cidade || complemento || ref) {
-      bloco += `📦 *Coleta ${i}:*\n`;
-      if (cep) bloco += `🔢 CEP: ${cep}\n`;
-      if (rua) bloco += `🛣️ Rua: ${rua}\n`;
-      if (numero) bloco += `🏠 Número: ${numero}\n`;
-      if (bairro) bloco += `📍 Bairro: ${bairro}\n`;
-      if (cidade) bloco += `🏙️ Cidade: ${cidade}\n`;
-      if (complemento) bloco += `📝 Complemento: ${complemento}\n`;
-      if (ref) bloco += `⭐ Referência: ${ref}\n`;
-      bloco += "\n";
-      mensagem += bloco;
-    }
-  }
+      <h3>Parada(s)</h3>
+      <div id="parada-container"></div>
+      <button type="button" onclick="adicionarParada()">+ Parada</button>
 
-  // Paradas
-  for (let i = 1; i <= totalParadas; i++) {
-    let bloco = "";
-    const cep = document.getElementById(`cepParada${i}`).value.trim();
-    const rua = document.getElementById(`ruaParada${i}`).value.trim();
-    const numero = document.getElementById(`numeroParada${i}`).value.trim();
-    const bairro = document.getElementById(`bairroParada${i}`).value.trim();
-    const cidade = document.getElementById(`cidadeParada${i}`).value.trim();
-    const complemento = document.getElementById(`complementoParada${i}`).value.trim();
-    const ref = document.getElementById(`referenciaParada${i}`).value.trim();
+      <h3>Endereço(s) de Entrega</h3>
+      <div id="entrega-container"></div>
+      <button type="button" onclick="adicionarEntrega()">+ Entrega</button>
 
-    if (cep || rua || numero || bairro || cidade || complemento || ref) {
-      bloco += `⏸️ *Parada ${i}:*\n`;
-      if (cep) bloco += `🔢 CEP: ${cep}\n`;
-      if (rua) bloco += `🛣️ Rua: ${rua}\n`;
-      if (numero) bloco += `🏠 Número: ${numero}\n`;
-      if (bairro) bloco += `📍 Bairro: ${bairro}\n`;
-      if (cidade) bloco += `🏙️ Cidade: ${cidade}\n`;
-      if (complemento) bloco += `📝 Complemento: ${complemento}\n`;
-      if (ref) bloco += `⭐ Referência: ${ref}\n`;
-      bloco += "\n";
-      mensagem += bloco;
-    }
-  }
+      <label>Nome de quem receberá:</label>
+      <input type="text" id="nomeRecebedor" />
 
-  // Entregas
-  for (let i = 1; i <= totalEntregas; i++) {
-    let bloco = "";
-    const cep = document.getElementById(`cepEntrega${i}`).value.trim();
-    const rua = document.getElementById(`ruaEntrega${i}`).value.trim();
-    const numero = document.getElementById(`numeroEntrega${i}`).value.trim();
-    const bairro = document.getElementById(`bairroEntrega${i}`).value.trim();
-    const cidade = document.getElementById(`cidadeEntrega${i}`).value.trim();
-    const complemento = document.getElementById(`complementoEntrega${i}`).value.trim();
-    const ref = document.getElementById(`referenciaEntrega${i}`).value.trim();
+      <label>Telefone de quem receberá (opcional):</label>
+      <input type="tel" id="telefoneRecebedor" />
 
-    if (cep || rua || numero || bairro || cidade || complemento || ref) {
-      bloco += `📬 *Entrega ${i}:*\n`;
-      if (cep) bloco += `🔢 CEP: ${cep}\n`;
-      if (rua) bloco += `🛣️ Rua: ${rua}\n`;
-      if (numero) bloco += `🏠 Número: ${numero}\n`;
-      if (bairro) bloco += `📍 Bairro: ${bairro}\n`;
-      if (cidade) bloco += `🏙️ Cidade: ${cidade}\n`;
-      if (complemento) bloco += `📝 Complemento: ${complemento}\n`;
-      if (ref) bloco += `⭐ Referência: ${ref}\n`;
-      bloco += "\n";
-      mensagem += bloco;
-    }
-  }
+      <label>Tipo de serviço:</label>
+      <div class="linha caixinhas">
+        <label><input type="checkbox" value="Coleta/Entrega" /> Coleta/Entrega</label>
+        <label><input type="checkbox" value="Cartório" /> Cartório</label>
+        <label><input type="checkbox" value="Correios" /> Correios</label>
+        <label><input type="checkbox" value="Compras" /> Compras</label>
+        <label><input type="checkbox" id="outrosServico" /> Outros</label>
+      </div>
+      <input type="text" id="outrosDescricao" placeholder="Descreva se marcou 'Outros'" />
 
-  // Recebedor
-  const nomeRecebedor = document.getElementById("nomeRecebedor").value.trim();
-  const telRecebedor = document.getElementById("telefoneRecebedor").value.trim();
-  if (nomeRecebedor || telRecebedor) {
-    mensagem += "🎯 *Recebedor:*\n";
-    if (nomeRecebedor) mensagem += `👤 ${nomeRecebedor}\n`;
-    if (telRecebedor) mensagem += `📞 ${telRecebedor}\n`;
-    mensagem += "\n";
-  }
+      <label>Forma de pagamento:</label>
+      <div class="linha caixinhas">
+        <label><input type="checkbox" value="Pix" onchange="mostrarOpcoesPagamento()" /> Pix</label>
+        <label><input type="checkbox" value="Dinheiro" onchange="mostrarOpcoesPagamento()" /> Dinheiro</label>
+        <label><input type="checkbox" value="Contrato" onchange="mostrarOpcoesPagamento()" /> Contrato</label>
+      </div>
 
-  // Tipo de Serviço
-  const servicosSelecionados = [];
-  document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-    if (checkbox.checked && ["Coleta/Entrega", "Cartório", "Correios", "Compras"].includes(checkbox.value)) {
-      servicosSelecionados.push(`✅ ${checkbox.value}`);
-    }
-  });
-  if (document.getElementById("outrosServico").checked) {
-    const outrosDesc = document.getElementById("outrosDescricao").value.trim();
-    if (outrosDesc) servicosSelecionados.push(`✅ Outros: ${outrosDesc}`);
-  }
-  if (servicosSelecionados.length) {
-    mensagem += "🛠️ *Tipo de Serviço:*\n";
-    servicosSelecionados.forEach(s => mensagem += `${s}\n`);
-    mensagem += "\n";
-  }
+      <p id="mensagemPix" style="display: none; color: green;">
+        Após o envio do comprovante, o pedido será concluído e encaminharemos o motoboy assim que possível.
+      </p>
 
-  // Forma de Pagamento
-  const pagamentosSelecionados = [];
-  document.querySelectorAll('input[type="checkbox"]').forEach(c => {
-    if (c.checked && ["Pix", "Dinheiro", "Contrato"].includes(c.value)) {
-      pagamentosSelecionados.push(`💵 ${c.value}`);
-    }
-  });
-  const dinheiroOpcao = document.querySelector('input[name="receberDinheiro"]:checked');
-  if (pagamentosSelecionados.length || dinheiroOpcao) {
-    mensagem += "💰 *Forma de Pagamento:*\n";
-    pagamentosSelecionados.forEach(p => mensagem += `${p}\n`);
-    if (dinheiroOpcao) {
-      mensagem += `🪙 Dinheiro: Receber na ${dinheiroOpcao.value}\n`;
-    }
-    mensagem += "\n";
-  }
+      <div id="opcoesDinheiro" class="linha caixinhas" style="display: none;">
+        <label><input type="radio" name="receberDinheiro" value="coleta" /> Receber na coleta</label>
+        <label><input type="radio" name="receberDinheiro" value="entrega" /> Receber na entrega</label>
+      </div>
 
-  // Retorno
-  if (document.getElementById("temRetorno").checked) {
-    mensagem += "🔄 *Tem Retorno de Entrega*\n\n";
-  }
+      <div class="linha caixinhas">
+        <label><input type="checkbox" id="temRetorno" /> Tem retorno de entrega</label>
+        <label><input type="radio" name="acao" value="Solicitar Motoboy" checked /> Solicitar Motoboy</label>
+        <label><input type="radio" name="acao" value="Orçamento" /> Apenas Orçamento</label>
+      </div>
 
-  // Ação
-  const acao = document.querySelector('input[name="acao"]:checked');
-  if (acao) {
-    mensagem += `📌 *Ação Desejada:*\n➡️ ${acao.value}\n`;
-  }
+      <button type="button" onclick="enviarParaWhatsApp()">Enviar Pedido via WhatsApp</button>
+    </form>
+  </div>
 
-  // Envia mesmo se tudo estiver vazio
-  const numeroWhatsApp = "5584981110706";
-  const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
-  window.open(urlWhatsApp, "_blank");
-}
+  <script src="app.js"></script>
+</body>
+</html>
