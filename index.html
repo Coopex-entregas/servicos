@@ -9,11 +9,11 @@
 <body>
   <div class="container">
     <h1>COOPEX ENTREGAS</h1>
-    <form id="pedidoForm">
+    <form id="pedidoForm" onsubmit="return false;">
       <label>Nome do solicitante:</label>
-      <input type="text" id="nomeSolicitante" required />
+      <input type="text" id="nomeSolicitante" />
       <label>Telefone do solicitante:</label>
-      <input type="tel" id="telefoneSolicitante" required />
+      <input type="tel" id="telefoneSolicitante" />
 
       <h3>Endereço(s) de Coleta</h3>
       <div id="coleta-container"></div>
@@ -44,14 +44,10 @@
 
       <label>Forma de pagamento:</label>
       <div class="linha caixinhas">
-        <label><input type="checkbox" value="Pix" onchange="mostrarOpcoesPagamento()" /> Pix</label>
-        <label><input type="checkbox" value="Dinheiro" onchange="mostrarOpcoesPagamento()" /> Dinheiro</label>
-        <label><input type="checkbox" value="Contrato" onchange="mostrarOpcoesPagamento()" /> Contrato</label>
+        <label><input type="checkbox" value="Pix" /> Pix</label>
+        <label><input type="checkbox" value="Dinheiro" /> Dinheiro</label>
+        <label><input type="checkbox" value="Contrato" /> Contrato</label>
       </div>
-
-      <p id="mensagemPix" style="display: none; color: green;">
-        Após o envio do comprovante, o pedido será concluído e encaminharemos o motoboy assim que possível.
-      </p>
 
       <div id="opcoesDinheiro" class="linha caixinhas" style="display: none;">
         <label><input type="radio" name="receberDinheiro" value="coleta" /> Receber na coleta</label>
@@ -70,4 +66,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
