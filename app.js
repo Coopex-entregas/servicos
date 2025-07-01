@@ -23,14 +23,12 @@ function criarBlocoEndereco() {
     <label>⭐ Ponto de referência:</label>
     <input type="text" class="referencia" placeholder="Ponto de referência (opcional)" />
   `;
-
   aplicarEventoCep(
     div.querySelector(".cep"),
     div.querySelector(".bairro"),
     div.querySelector(".logradouro"),
     div.querySelector(".cidade")
   );
-
   return div;
 }
 
@@ -64,16 +62,24 @@ function aplicarEventoCep(cepInput, bairroInput, logradouroInput, cidadeInput) {
             cidadeInput.value = data.localidade || "";
           } else {
             alert("CEP não encontrado.");
+            bairroInput.value = "";
+            logradouroInput.value = "";
+            cidadeInput.value = "";
           }
         })
-        .catch(() => alert("Erro ao buscar CEP."));
+        .catch(() => {
+          alert("Erro ao buscar CEP.");
+          bairroInput.value = "";
+          logradouroInput.value = "";
+          cidadeInput.value = "";
+        });
     }
   });
 }
 
 function mostrarOpcoesPagamento() {
-  const pix = document.querySelector('input[name="pagamento"][value="Pix"]').checked;
-  const dinheiro = document.querySelector('input[name="pagamento"][value="Dinheiro"]').checked;
+  const pix = document.querySelector('input[value="Pix"]').checked;
+  const dinheiro = document.querySelector('input[value="Dinheiro"]').checked;
 
   document.getElementById("mensagemPix").style.display = pix ? "block" : "none";
   document.getElementById("opcoesDinheiro").style.display = dinheiro ? "flex" : "none";
@@ -81,17 +87,16 @@ function mostrarOpcoesPagamento() {
 
 function validarEnderecoObrigatorio(containerId, tipo) {
   const blocos = document.querySelectorAll(`#${containerId} .bloco-endereco`);
-  for (let i = 0; i < blocos.length; i++) {
-    const bloco = blocos[i];
+  for (let bloco of blocos) {
     const rua = bloco.querySelector(".logradouro");
     const numero = bloco.querySelector(".numero");
     if (!rua.value.trim()) {
-      alert(`Preencha a Rua no ${tipo}.`);
+      alert(`Por favor, preencha a Rua no ${tipo}.`);
       rua.focus();
       return false;
     }
     if (!numero.value.trim()) {
-      alert(`Preencha o Número no ${tipo}.`);
+      alert(`Por favor, preencha o Número no ${tipo}.`);
       numero.focus();
       return false;
     }
@@ -102,6 +107,7 @@ function validarEnderecoObrigatorio(containerId, tipo) {
 function enviarParaWhatsApp() {
   const nomeSolicitante = document.getElementById("nomeSolicitante");
   const telefoneSolicitante = document.getElementById("telefoneSolicitante");
+
   if (!nomeSolicitante.value.trim()) {
     alert("Por favor, preencha o Nome do Solicitante.");
     nomeSolicitante.focus();
@@ -115,22 +121,81 @@ function enviarParaWhatsApp() {
   if (!validarEnderecoObrigatorio("coleta-container", "Coleta")) return;
   if (!validarEnderecoObrigatorio("entrega-container", "Entrega")) return;
 
-  const tipos = [...document.querySelectorAll('input[name="tipoServico"]:checked')];
+  // Validar Tipo de serviço
+  const tiposChecked = [...document.querySelectorAll('input[type="checkbox"][name="tipoServico"]:checked')];
   const outrosMarcado = document.getElementById("outrosServico").checked;
-  if (tipos.length === 0 && !outrosMarcado) {
-    alert("Selecione ao menos um tipo de serviço.");
-    return;
+  let tiposSelecionados = tiposChecked.map(el => el.value);
+  if (outrosMarcado) {
+    const desc = document.getElementById("outrosDescricao").value.trim();
+    if (!desc) {
+      alert("Por favor, descreva o serviço em 'Outros'.");
+      document.getElementById("outrosDescricao").focus();
+      return;
+    }
+    tiposSelecionados.push(desc);
   }
-  if (outrosMarcado && !document.getElementById("outrosDescricao").value.trim()) {
-    alert("Descreva o serviço em 'Outros'.");
-    return;
-  }
-  const pagamentos = [...document.querySelectorAll('input[name="pagamento"]:checked')];
-  if (pagamentos.length === 0) {
-    alert("Selecione ao menos uma forma de pagamento.");
+  if (tiposSelecionados.length === 0) {
+    alert("Por favor, selecione ao menos um Tipo de serviço.");
     return;
   }
 
-  // Aqui vai o restante do envio da mensagem
-  alert("Tudo validado. Aqui você pode montar a mensagem e abrir o WhatsApp.");
+  // Validar forma de pagamento
+  const pagamentos = [...document.querySelectorAll('input[type="checkbox"][name="pagamento"]:checked')];
+  if (pagamentos.length === 0) {
+    alert("Por favor, selecione ao menos uma Forma de pagamento.");
+    return;
+  }
+
+  // Montar mensagem com emojis
+  function formatarEnderecos(containerId, titulo) {
+    let texto = `*${titulo}:*\n`;
+    const blocos = document.querySelectorAll(`#${containerId} .bloco-endereco`);
+    blocos.forEach((b) => {
+      const rua = b.querySelector(".logradouro").value.trim();
+      const numero = b.querySelector(".numero").value.trim();
+      const bairro = b.querySelector(".bairro").value.trim();
+      const cidade = b.querySelector(".cidade").value.trim();
+      const complemento = b.querySelector(".complemento").value.trim();
+      const referencia = b.querySelector(".referencia").value.trim();
+
+      texto += `\n🛣️ Rua: ${rua}\n🏠 Número: ${numero}`;
+      if (bairro) texto += `\n📍 Bairro: ${bairro}`;
+      if (cidade) texto += `\n🏙️ Cidade: ${cidade}`;
+      if (complemento) texto += `\n📝 Complemento: ${complemento}`;
+      if (referencia) texto += `\n⭐ Ponto de referência: ${referencia}`;
+      texto += `\n`;
+    });
+    return texto;
+  }
+
+  const textoColeta = formatarEnderecos("coleta-container", "Endereço(s) de Coleta");
+  const textoEntrega = formatarEnderecos("entrega-container", "Endereço(s) de Entrega");
+  const textoParadas = formatarEnderecos("parada-container", "Parada(s)");
+
+  const nomeRecebedor = document.getElementById("nomeRecebedor").value.trim();
+  const telefoneRecebedor = document.getElementById("telefoneRecebedor").value.trim();
+
+  let msg = `*Novo Pedido*\n\n👤 Solicitante: ${nomeSolicitante.value}\n📞 Telefone: ${telefoneSolicitante.value}\n\n${textoColeta}\n${textoParadas}\n${textoEntrega}`;
+  if (nomeRecebedor) msg += `\n👤 Quem recebe: ${nomeRecebedor}`;
+  if (telefoneRecebedor) msg += `\n📞 Tel. de quem recebe: ${telefoneRecebedor}`;
+
+  msg += `\n\n🛠️ *Tipo de serviço:* ${tiposSelecionados.join(", ")}`;
+  msg += `\n💰 *Forma de pagamento:* ${pagamentos.map(p=>p.value).join(", ")}`;
+
+  const retorno = document.getElementById("temRetorno").checked ? "Sim" : "Não";
+  const acao = document.querySelector('input[name="acao"]:checked').value;
+  msg += `\n🔄 Retorno de entrega: ${retorno}`;
+  msg += `\n📝 Ação: ${acao}`;
+
+  const mensagemFinal = encodeURIComponent(msg);
+  const numeroDestino = "5584981110706"; // SEU NÚMERO AQUI SEM + OU ESPAÇOS
+  const url = `https://wa.me/${numeroDestino}?text=${mensagemFinal}`;
+
+  window.open(url, "_blank");
 }
+
+// Inicializa os blocos padrão ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  adicionarColeta();
+  adicionarEntrega();
+});
