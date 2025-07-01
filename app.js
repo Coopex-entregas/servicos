@@ -1,152 +1,82 @@
-let totalColetas = 0;
-let totalEntregas = 0;
-let totalParadas = 0;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COOPEX ENTREGAS - Pedido</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>COOPEX ENTREGAS</h1>
+    <form id="pedidoForm">
+      <label>Nome do solicitante: <span style="color: red">*</span></label>
+      <input type="text" id="nomeSolicitante" required />
 
-function criarBlocoEndereco(tipo, index) {
-  return `
-    <div class="bloco-endereco">
-      <label>CEP (opcional):</label>
-      <input type="text" id="cep${tipo}${index}" />
-      <button type="button" onclick="buscarEndereco('${tipo}', ${index})">Buscar Endereço</button>
-      <label>Rua:</label>
-      <input type="text" id="rua${tipo}${index}" />
-      <label>Número:</label>
-      <input type="text" id="numero${tipo}${index}" />
-      <label>Bairro:</label>
-      <input type="text" id="bairro${tipo}${index}" />
-      <label>Cidade:</label>
-      <input type="text" id="cidade${tipo}${index}" />
-      <label>Complemento:</label>
-      <input type="text" id="complemento${tipo}${index}" />
-      <label>Ponto de referência:</label>
-      <input type="text" id="referencia${tipo}${index}" />
-    </div>
-  `;
-}
+      <label>Telefone do solicitante: <span style="color: red">*</span></label>
+      <input type="tel" id="telefoneSolicitante" required />
 
-function adicionarColeta() {
-  if (totalColetas >= 3) return;
-  totalColetas++;
-  document.getElementById("coleta-container").insertAdjacentHTML("beforeend", criarBlocoEndereco("Coleta", totalColetas));
-}
+      <h3>Endereço(s) de Coleta</h3>
+      <div id="coleta-container"></div>
+      <button type="button" onclick="adicionarColeta()">+ Coleta</button>
 
-function adicionarEntrega() {
-  if (totalEntregas >= 20) return;
-  totalEntregas++;
-  document.getElementById("entrega-container").insertAdjacentHTML("beforeend", criarBlocoEndereco("Entrega", totalEntregas));
-}
+      <h3>Parada(s)</h3>
+      <div id="parada-container"></div>
+      <button type="button" onclick="adicionarParada()">+ Parada</button>
 
-function adicionarParada() {
-  totalParadas++;
-  document.getElementById("parada-container").insertAdjacentHTML("beforeend", criarBlocoEndereco("Parada", totalParadas));
-}
+      <h3>Endereço(s) de Entrega</h3>
+      <div id="entrega-container"></div>
+      <button type="button" onclick="adicionarEntrega()">+ Entrega</button>
 
-function buscarEndereco(tipo, index) {
-  const cep = document.getElementById(`cep${tipo}${index}`).value.replace(/\D/g, "");
-  if (cep.length !== 8) return;
-  fetch(`https://viacep.com.br/ws/${cep}/json/`)
-    .then(resp => resp.json())
-    .then(data => {
-      if (data.erro) return;
-      document.getElementById(`rua${tipo}${index}`).value = data.logradouro || "";
-      document.getElementById(`bairro${tipo}${index}`).value = data.bairro || "";
-      document.getElementById(`cidade${tipo}${index}`).value = data.localidade || "";
-    });
-}
+      <label>Nome de quem receberá:</label>
+      <input type="text" id="nomeRecebedor" />
+      <label>Telefone de quem receberá (opcional):</label>
+      <input type="tel" id="telefoneRecebedor" />
 
-function mostrarOpcoesPagamento() {
-  const pix = document.querySelector("input[value='Pix']");
-  const dinheiro = document.querySelector("input[value='Dinheiro']");
-  document.getElementById("mensagemPix").style.display = pix && pix.checked ? "block" : "none";
-  document.getElementById("opcoesDinheiro").style.display = dinheiro && dinheiro.checked ? "flex" : "none";
-}
+      <label>Tipo de serviço: <span style="color: red">*</span></label>
+      <div class="linha caixinhas">
+        <label><input type="checkbox" value="Coleta/Entrega" /> Coleta/Entrega</label>
+        <label><input type="checkbox" value="Cartório" /> Cartório</label>
+        <label><input type="checkbox" value="Correios" /> Correios</label>
+        <label><input type="checkbox" value="Compras" /> Compras</label>
+        <label><input type="checkbox" id="outrosServico" /> Outros</label>
+      </div>
+      <input type="text" id="outrosDescricao" placeholder="Descreva se marcou 'Outros'" />
 
-function enviarParaWhatsApp() {
-  const nome = document.getElementById("nomeSolicitante").value.trim();
-  if (!nome) {
-    alert("Por favor, preencha o nome do solicitante.");
-    return;
-  }
+      <label>Forma de pagamento: <span style="color: red">*</span></label>
+      <div class="linha caixinhas">
+        <label><input type="checkbox" value="Pix" onchange="mostrarOpcoesPagamento()" /> Pix</label>
+        <label><input type="checkbox" value="Dinheiro" onchange="mostrarOpcoesPagamento()" /> Dinheiro</label>
+        <label><input type="checkbox" value="Contrato" onchange="mostrarOpcoesPagamento()" /> Contrato</label>
+      </div>
 
-  if (totalColetas === 0) {
-    alert("Adicione pelo menos um endereço de coleta.");
-    return;
-  }
+      <p id="mensagemPix" style="display: none; color: green;">
+        Após o envio do comprovante, o pedido será concluído e encaminharemos o motoboy assim que possível.
+      </p>
 
-  if (totalEntregas === 0) {
-    alert("Adicione pelo menos um endereço de entrega.");
-    return;
-  }
+      <div id="opcoesDinheiro" class="linha caixinhas" style="display: none;">
+        <label><input type="radio" name="receberDinheiro" value="coleta" /> Receber na coleta</label>
+        <label><input type="radio" name="receberDinheiro" value="entrega" /> Receber na entrega</label>
+      </div>
 
-  const tipoServicoSelecionado = Array.from(document.querySelectorAll('input[type="checkbox"]'))
-    .some(cb => ["Coleta/Entrega", "Cartório", "Correios", "Compras"].includes(cb.value) && cb.checked || cb.id === "outrosServico" && cb.checked);
+      <div class="linha caixinhas">
+        <label><input type="checkbox" id="temRetorno" /> Tem retorno de entrega</label>
+        <label><input type="radio" name="acao" value="Solicitar Motoboy" checked /> Solicitar Motoboy</label>
+        <label><input type="radio" name="acao" value="Orçamento" /> Apenas Orçamento</label>
+      </div>
 
-  if (!tipoServicoSelecionado) {
-    alert("Selecione pelo menos um tipo de serviço.");
-    return;
-  }
+      <button type="button" onclick="enviarParaWhatsApp()">Enviar Pedido via WhatsApp</button>
+    </form>
+  </div>
 
-  const formaPagamentoSelecionada = Array.from(document.querySelectorAll('input[type="checkbox"]'))
-    .some(cb => ["Pix", "Dinheiro", "Contrato"].includes(cb.value) && cb.checked);
-
-  if (!formaPagamentoSelecionada) {
-    alert("Selecione pelo menos uma forma de pagamento.");
-    return;
-  }
-
-  let mensagem = "📦 *Novo Pedido - COOPEX ENTREGAS*\n\n";
-
-  mensagem += "👤 *Solicitante:*\n";
-  mensagem += `• Nome: ${nome}\n`;
-  mensagem += `• Telefone: ${document.getElementById("telefoneSolicitante").value}\n\n`;
-
-  for (let i = 1; i <= totalColetas; i++) {
-    mensagem += `🏁 *Coleta ${i}:*\n`;
-    mensagem += `• Rua: ${document.getElementById("ruaColeta" + i).value}\n`;
-    mensagem += `• Número: ${document.getElementById("numeroColeta" + i).value}\n`;
-    mensagem += `• Bairro: ${document.getElementById("bairroColeta" + i).value}\n`;
-    mensagem += `• Cidade: ${document.getElementById("cidadeColeta" + i).value}\n\n`;
-  }
-
-  for (let i = 1; i <= totalEntregas; i++) {
-    mensagem += `📍 *Entrega ${i}:*\n`;
-    mensagem += `• Rua: ${document.getElementById("ruaEntrega" + i).value}\n`;
-    mensagem += `• Número: ${document.getElementById("numeroEntrega" + i).value}\n`;
-    mensagem += `• Bairro: ${document.getElementById("bairroEntrega" + i).value}\n`;
-    mensagem += `• Cidade: ${document.getElementById("cidadeEntrega" + i).value}\n\n`;
-  }
-
-  mensagem += "📨 *Tipo de Serviço:*\n";
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-    if (cb.id !== "temRetorno") {
-      if (cb.id === "outrosServico") {
-        mensagem += `• Outros: ${document.getElementById("outrosDescricao").value}\n`;
-      } else {
-        mensagem += `• ${cb.value}\n`;
-      }
-    }
-  });
-
-  mensagem += "\n💰 *Forma de Pagamento:*\n";
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-    if (["Pix", "Dinheiro", "Contrato"].includes(cb.value)) {
-      mensagem += `• ${cb.value}\n`;
-    }
-  });
-
-  const radioDinheiro = document.querySelector('input[name="receberDinheiro"]:checked');
-  if (radioDinheiro) {
-    mensagem += `• Receber na ${radioDinheiro.value}\n`;
-  }
-
-  if (document.getElementById("temRetorno").checked) {
-    mensagem += "\n🔁 *Retorno de Entrega: Sim*\n";
-  }
-
-  mensagem += "\n⚙️ *Ação:*\n";
-  mensagem += `• ${document.querySelector('input[name="acao"]:checked').value}\n`;
-
-  const numeroWhatsApp = "5584981110706";
-  const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
-  window.open(urlWhatsApp, "_blank");
-}
+  <!-- Script carregado no final para garantir que o DOM esteja pronto -->
+  <script src="app.js"></script>
+  <script>
+    // Garante que 1 coleta e 1 entrega apareçam automaticamente
+    window.onload = () => {
+      adicionarColeta();
+      adicionarEntrega();
+    };
+  </script>
+</body>
+</html>
