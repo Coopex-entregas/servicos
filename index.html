@@ -9,45 +9,44 @@
 <body>
   <div class="container">
     <h1>COOPEX ENTREGAS</h1>
-    <form id="pedidoForm">
+    <form id="pedidoForm" onsubmit="return false;">
       <label>Nome do solicitante: <span class="obrigatorio">*</span></label>
       <input type="text" id="nomeSolicitante" required />
 
       <label>Telefone do solicitante: <span class="obrigatorio">*</span></label>
       <input type="tel" id="telefoneSolicitante" required />
 
-      <h3>Endereço(s) de Coleta</h3>
+      <h3>Endereço de Coleta (fixo)</h3>
       <div id="coleta-container"></div>
-      <button type="button" onclick="adicionarColeta()">+ Coleta</button>
 
       <h3>Parada(s)</h3>
       <div id="parada-container"></div>
       <button type="button" onclick="adicionarParada()">+ Parada</button>
 
-      <h3>Endereço(s) de Entrega</h3>
+      <h3>Endereço de Entrega (fixo)</h3>
       <div id="entrega-container"></div>
-      <button type="button" onclick="adicionarEntrega()">+ Entrega</button>
 
       <label>Nome de quem receberá:</label>
       <input type="text" id="nomeRecebedor" />
+
       <label>Telefone de quem receberá (opcional):</label>
       <input type="tel" id="telefoneRecebedor" />
 
       <label>Tipo de serviço: <span class="obrigatorio">*</span></label>
-      <div class="linha caixinhas">
-        <label><input type="checkbox" value="Coleta/Entrega" /> Coleta/Entrega</label>
-        <label><input type="checkbox" value="Cartório" /> Cartório</label>
-        <label><input type="checkbox" value="Correios" /> Correios</label>
-        <label><input type="checkbox" value="Compras" /> Compras</label>
+      <div class="linha caixinhas" id="tipoServico">
+        <label><input type="checkbox" name="tipoServico" value="Coleta/Entrega" /> Coleta/Entrega</label>
+        <label><input type="checkbox" name="tipoServico" value="Cartório" /> Cartório</label>
+        <label><input type="checkbox" name="tipoServico" value="Correios" /> Correios</label>
+        <label><input type="checkbox" name="tipoServico" value="Compras" /> Compras</label>
         <label><input type="checkbox" id="outrosServico" /> Outros</label>
       </div>
       <input type="text" id="outrosDescricao" placeholder="Descreva se marcou 'Outros'" />
 
       <label>Forma de pagamento: <span class="obrigatorio">*</span></label>
-      <div class="linha caixinhas">
-        <label><input type="checkbox" value="Pix" onchange="mostrarOpcoesPagamento()" /> Pix</label>
-        <label><input type="checkbox" value="Dinheiro" onchange="mostrarOpcoesPagamento()" /> Dinheiro</label>
-        <label><input type="checkbox" value="Contrato" onchange="mostrarOpcoesPagamento()" /> Contrato</label>
+      <div class="linha caixinhas" id="pagamento">
+        <label><input type="checkbox" name="pagamento" value="Pix" onchange="mostrarOpcoesPagamento()" /> Pix</label>
+        <label><input type="checkbox" name="pagamento" value="Dinheiro" onchange="mostrarOpcoesPagamento()" /> Dinheiro</label>
+        <label><input type="checkbox" name="pagamento" value="Contrato" onchange="mostrarOpcoesPagamento()" /> Contrato</label>
       </div>
 
       <p id="mensagemPix" style="display: none; color: green;">
